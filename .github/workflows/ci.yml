@@ -22,11 +22,8 @@ jobs:
         with:
           go-version: 1.23.4
 
-      - name: Run Tests for Product Service
-        run: cd product-service && go test ./tests -v
+      - name: Build using Docker
+        run: docker-compose up --build
 
-      - name: Run Tests for Inventory Service
-        run: cd inventory-service && go test ./tests -v
-
-      - name: Run Tests for Report Service
-        run: cd report-service && go test ./tests -v
+      - name: Run Tests for All Services
+        run: go test ./... -v
