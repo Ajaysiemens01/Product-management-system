@@ -6,10 +6,24 @@ import (
 	"github.com/xuri/excelize/v2"
 	"report-service/models"
 	"errors"
+	"os"
+	"fmt"
 )
 
-var mutex sync.Mutex
-var filePath = "/app/data/products.xlsx"
+func GetExcelFilePath() string {
+    path := os.Getenv("EXCEL_FILE_PATH")
+    if path == "" {
+        path = "../../data/products.xlsx" // Default path for local testing
+    }
+    fmt.Println("Using Excel file path:", path)
+    return path
+}
+
+var (
+	filePath = GetExcelFilePath()
+	mutex    sync.Mutex
+)
+
 
 // GetInventoryReport fetches all product data
 func GetInventoryReport(restockThreshold int) ([]*models.ProductReport, error) {

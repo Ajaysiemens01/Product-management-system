@@ -7,13 +7,22 @@ import (
 	"strconv"
 	"sync"
 	"time"
-
+	"os"
 	"github.com/google/uuid"
 	"github.com/xuri/excelize/v2"
 )
 
+func GetExcelFilePath() string {
+    path := os.Getenv("EXCEL_FILE_PATH")
+    if path == "" {
+        path = "../../data/products.xlsx" // Default path for local testing
+    }
+    fmt.Println("Using Excel file path:", path)
+    return path
+}
+
 var (
-	filePath = "/app/data/products.xlsx"
+	filePath = GetExcelFilePath()
 	mutex    sync.Mutex
 )
 

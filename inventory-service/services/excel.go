@@ -4,12 +4,23 @@ import (
 	"fmt"
 	"strconv"
 	"sync"
-
+	"os"
 	"github.com/xuri/excelize/v2"
 )
+func GetExcelFilePath() string {
+    path := os.Getenv("EXCEL_FILE_PATH")
+    if path == "" {
+        path = "../../data/products.xlsx" // Default path for local testing
+    }
+    fmt.Println("Using Excel file path:", path)
+    return path
+}
 
-var mutex sync.Mutex
-var filePath = "/app/data/products.xlsx"
+var (
+	filePath = GetExcelFilePath()
+	mutex    sync.Mutex
+)
+
 
 // UpdateStock modifies product quantity based on change (+restock, -sale)
 func UpdateStock(productID string, change int) error {

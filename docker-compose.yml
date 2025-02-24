@@ -2,6 +2,8 @@
 services:
   product-service:
     build: ./product-service
+    environment:
+      - EXCEL_FILE_PATH=/app/data/products.xlsx
     volumes:
       - ./data:/app/data
     ports:
@@ -10,7 +12,8 @@ services:
 
   inventory-service:
     build: ./inventory-service
-    
+    environment:
+      - EXCEL_FILE_PATH=/app/data/products.xlsx
     volumes:
       - ./data:/app/data
     ports:
@@ -19,6 +22,8 @@ services:
 
   report-service:
     build: ./report-service
+    environment:
+      - EXCEL_FILE_PATH=/app/data/products.xlsx
     volumes:
       - ./data:/app/data
     ports:
