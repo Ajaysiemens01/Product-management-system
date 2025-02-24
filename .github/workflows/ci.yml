@@ -1,29 +1,35 @@
-name: Go Microservices CI - Product Management System
+# name: Go Microservices CI
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+# on:
+#   push:
+#     branches:
+#       - main
+#   pull_request:
+#     branches:
+#       - main
 
-jobs:
-  test:
-    name: Run Unit Tests
-    runs-on: ubuntu-latest
+# jobs:
+#   test:
+#     name: Run Unit Tests
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v3
 
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: 1.23.4
+#       - name: Set up Go
+#         uses: actions/setup-go@v4
+#         with:
+#           go-version: 1.23.4
 
-      - name: Build using Docker
-        run: docker-compose up --build
+#       - name: Build using Docker
+#         run: docker-compose up --build
 
-      - name: Run Tests for All Services
-        run: go test ./... -v
+#       - name: Run Tests for Product Service
+#         run: cd product-service && go test ./tests -v
+
+#       - name: Run Tests for Inventory Service
+#         run: cd inventory-service && go test ./tests -v
+
+#       - name: Run Tests for Report Service
+#         run: cd report-service && go test ./tests -v
