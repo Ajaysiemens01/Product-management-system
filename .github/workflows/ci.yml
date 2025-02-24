@@ -22,9 +22,6 @@
 #         with:
 #           go-version: 1.23.4
 
-#       - name: Build using Docker
-#         run: docker-compose up --build
-
 #       - name: Run Tests for Product Service
 #         run: cd product-service && go test ./tests -v
 
