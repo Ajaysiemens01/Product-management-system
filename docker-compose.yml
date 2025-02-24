@@ -1,4 +1,3 @@
-
 services:
   product-service:
     build: ./product-service
