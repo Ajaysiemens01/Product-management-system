@@ -1,4 +1,4 @@
-name: Go Microservices CI
+name: Go Microservices CI - Product Management System
 
 on:
   push:

@@ -8,12 +8,21 @@ import (
 	"github.com/stretchr/testify/assert"
 	"log"
 	"github.com/xuri/excelize/v2"
+	"os"
+	"fmt"
 )
 
 var testMutex sync.Mutex
 
-
-const filePath = "/app/data/products.xlsx"
+func GetExcelFilePath() string {
+    path := os.Getenv("EXCEL_FILE_PATH")
+    if path == "" {
+        path = "../../data/products.xlsx" // Default path for local testing
+    }
+    fmt.Println("Using Excel file path:", path)
+    return path
+}
+var filePath = GetExcelFilePath()
 
 func deleteTestProduct() {
 	// Open the Excel file
