@@ -8,24 +8,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
-	"os"
 )
 
 
 var mutex sync.Mutex
 
-func GetReportFilePath() string {
-    path := os.Getenv("REPORT_FILE_PATH")
-    if path == "" {
-        path = "../data/products_report.xlsx" // Default path for local testing
-    }
-    fmt.Println("Using Report file path:", path)
-    return path
-}
-
-
 // SaveProduct writes a new product to the report file 
-func SaveProduct(products []*models.ProductReport, filePath string) error {
+func SaveProduct(products []*models.ProductReport, ReportfilePath string) error {
 	// Create a new file if it doesn't existm
 	file := excelize.NewFile()
 		file.SetSheetRow("Sheet1", "A1", &[]string{"ID", "Name", "Description", "Price", "Quantity"})
@@ -45,11 +34,11 @@ func SaveProduct(products []*models.ProductReport, filePath string) error {
 	    file.SetCellValue(sheet, fmt.Sprintf("E%d", rowCount), p.Quantity)    
     
 	}
-  return file.SaveAs(filePath)
+  return file.SaveAs(ReportfilePath)
 }
 
 // GetInventoryReport fetches all product data
-func GetInventoryReport(restockThreshold int, filePath string) ([]*models.ProductReport, error) {
+func GetInventoryReport(restockThreshold int, filePath string, reportFilePath string) ([]*models.ProductReport, error) {
 	mutex.Lock()
 	defer mutex.Unlock()
 
@@ -79,7 +68,7 @@ func GetInventoryReport(restockThreshold int, filePath string) ([]*models.Produc
 		})
 		}
 	}
-	if err := SaveProduct(report,GetReportFilePath()); err != nil {
+	if err := SaveProduct(report, reportFilePath); err != nil {
 		return report,err
 	}
 	return report, nil
