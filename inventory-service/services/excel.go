@@ -4,26 +4,16 @@ import (
 	"fmt"
 	"strconv"
 	"sync"
-	"os"
 	"github.com/xuri/excelize/v2"
-)
-func GetExcelFilePath() string {
-    path := os.Getenv("EXCEL_FILE_PATH")
-    if path == "" {
-        path = "../../data/products.xlsx" // Default path for local testing
-    }
-    fmt.Println("Using Excel file path:", path)
-    return path
-}
-
-var (
-	filePath = GetExcelFilePath()
-	mutex    sync.Mutex
+	"inventory-service/models"
+	"errors"
 )
 
+var mutex    sync.Mutex
 
-// UpdateStock modifies product quantity based on change (+restock, -sale)
-func UpdateStock(productID string, change int) error {
+
+// UpdateStock modifies product attributes based on provided fields
+func UpdateStock(update *models.InventoryUpdate,filePath string) error {
 	mutex.Lock()
 	defer mutex.Unlock()
 
@@ -37,18 +27,39 @@ func UpdateStock(productID string, change int) error {
 
 	for i, row := range rows {
 		if i == 0 {
-			continue
+			continue // Skip header
 		}
-		if row[0] == productID {
-			currentQty, _ := strconv.Atoi(row[4])
-			newQty := currentQty + change
-			if newQty < 0 {
-				return fmt.Errorf("insufficient stock")
+		if row[0] == update.ProductID {
+			// Update fields if they are provided
+			if  update.StockAdded > 0{
+				currentQty, _ := strconv.Atoi(row[4])
+				newQty := currentQty + update.StockAdded
+				file.SetCellValue(sheet, fmt.Sprintf("E%d", i+1), newQty)
+			} else if update.StockAdded <0 {
+				return errors.New("validation Error: Stock must be greaterthan zero")
 			}
-			file.SetCellValue(sheet, fmt.Sprintf("E%d", i+1), newQty)
+			if update.Name != "" {
+				file.SetCellValue(sheet, fmt.Sprintf("B%d", i+1), update.Name)
+			}
+			if update.Description != "" {
+				file.SetCellValue(sheet, fmt.Sprintf("C%d", i+1), update.Description)
+			} 
+			if update.Price > 0 {
+				file.SetCellValue(sheet, fmt.Sprintf("D%d", i+1), update.Price)
+			} else if update.Price < 0{
+				return errors.New("validation Error: Price must be greaterthan zero")
+			}
+			if update.Quantity > 0 {
+				file.SetCellValue(sheet, fmt.Sprintf("E%d", i+1), update.Quantity)
+			} else if update.Quantity < 0  {
+				return errors.New("validation Error: Quantity must be greaterthan zero")
+			}
+
+			// Save changes
 			return file.SaveAs(filePath)
 		}
 	}
 
-	return fmt.Errorf("product not found")
+	return errors.New("product not found")
 }
+

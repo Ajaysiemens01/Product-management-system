@@ -1,64 +1,55 @@
 package handlers
 
 import (
-	"fmt"
 	"inventory-service/models"
 	"inventory-service/services"
-	"net/http"
 	"sync"
-	"github.com/google/jsonapi"
+	"net/http"
 	"github.com/gorilla/mux"
+	"github.com/go-playground/validator/v10"
+	"os"
+	"fmt"
 )
 
-// ParseRequestBody parses the request body
-func ParseRequestBody(r *http.Request) (*models.InventoryUpdate, error) {
-	var request models.InventoryUpdate
-	if err := jsonapi.UnmarshalPayload(r.Body, &request); err != nil {
-		return nil, err
-	}
-	return &request, nil
-}
-
-// RespondWithJsonApi sends the response
-func RespondWithJsonApi(w http.ResponseWriter, response interface{}) error {
-	w.Header().Set("Content-Type", "application/vnd.api+json")
-	return jsonapi.MarshalPayload(w, response)
-}
-
-// handleError is a helper function to handle errors
-func handleError(w http.ResponseWriter, message string, statusCode int) {
-	w.Header().Set("Content-Type", "application/vnd.api+json")
-	w.WriteHeader(statusCode)
-	var errors []*jsonapi.ErrorObject
-
-		errors = append(errors, &jsonapi.ErrorObject{
-			Status: fmt.Sprintf("%d", statusCode), 
-			Title:  http.StatusText(statusCode),
-			Detail: message,
-		})
-	if err := jsonapi.MarshalErrors(w, errors); err != nil {
-		http.Error(w, "Error encoding error response", http.StatusInternalServerError)
-	}
-}
 var wg sync.WaitGroup
 
-// UpdateStockHandler handles stock updates concurrently
-func UpdateStockHandler(w http.ResponseWriter, r *http.Request) {
-    var update *models.InventoryUpdate
+func GetExcelFilePath() string {
+    path := os.Getenv("EXCEL_FILE_PATH")
+    if path == "" {
+        path = "../data/products.xlsx" // Default path for local testing
+    }
+    fmt.Println("Using Excel file path:", path)
+    return path
+}
+ var filePath = GetExcelFilePath()
+
+// UpdateProductDetails handles product updates concurrently
+func UpdateProductHandler(w http.ResponseWriter, r *http.Request) {
+	var update *models.InventoryUpdate
     id := mux.Vars(r)["product_id"]
     var err error
-
     update, err = ParseRequestBody(r)
     if err != nil {
         handleError(w, "Invalid request", http.StatusBadRequest)
         return
     }
-    update.ProductID = id
+    
+   // Validate input
+   if err := validator.New().Struct(update); err != nil {
+	errs := BundleValidationErrors(err,update)
+	if errs != nil{
+		handleErrors(w, errs, http.StatusBadRequest)
+		return
+	}
+    }
+    if id != "" {
+		update.ProductID = id
+	}
 
     wg.Add(1)
     go func() {
         defer wg.Done()
-        if err := services.UpdateStock(update.ProductID, update.Change); err != nil {
+        if err := services.UpdateStock(update,filePath); err != nil {
             handleError(w, err.Error(), http.StatusBadRequest)
             return
         }
@@ -72,3 +63,4 @@ func UpdateStockHandler(w http.ResponseWriter, r *http.Request) {
 
     wg.Wait()
 }
+

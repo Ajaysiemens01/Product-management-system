@@ -7,8 +7,19 @@ import (
 	"fmt"
 	"sync"
 	"strconv"
+	"os"
 )
 
+func GetExcelFilePath() string {
+    path := os.Getenv("EXCEL_FILE_PATH")
+    if path == "" {
+        path = "../data/products.xlsx" // Default path for local testing
+    }
+    fmt.Println("Using Excel file path:", path)
+    return path
+}
+
+var filePath = GetExcelFilePath()
 // RespondWithJsonApi sends the response
 func RespondWithJsonApi(w http.ResponseWriter, response interface{}) error {
 	w.Header().Set("Content-Type", "application/vnd.api+json")
@@ -42,7 +53,7 @@ func GetInventoryReportHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			handleError(w, err.Error(), http.StatusInternalServerError)
 		}
-		report, err := services.GetInventoryReport(restockThreshold)
+		report, err := services.GetInventoryReport(restockThreshold,filePath)
 		if err != nil {
 			handleError(w, err.Error(), http.StatusInternalServerError)
 			return

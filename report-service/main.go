@@ -19,8 +19,7 @@ func main() {
     r := mux.NewRouter()
 
 	config.LoadConfig() 
-	// log.Println(config.PORT)
-	// log.Println(config.APIKey)
+	
     // // Apply authentication middleware
 	 api := r.PathPrefix("/api").Subrouter()
 	 api.Use(middlewares.APIKeyMiddleware)

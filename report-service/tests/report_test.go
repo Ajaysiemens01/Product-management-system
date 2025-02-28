@@ -5,16 +5,29 @@ import (
 	"testing"
 	"report-service/services"
 	"github.com/stretchr/testify/assert"
+	"os"
+	"fmt"
 )
+func GetExcelFilePath() string {
+    path := os.Getenv("EXCEL_FILE_PATH")
+    if path == "" {
+        path = "../../data/products.xlsx" // Default path for local testing
+    }
+    fmt.Println("Using Excel file path:", path)
+    return path
+}
 
-var testMutex sync.Mutex
+var (
+testMutex sync.Mutex
+filePath = GetExcelFilePath()
+)
 
 //Test GetInventoryReport with valid credentials
 func TestGetInventorReport(t *testing.T) {
 	testMutex.Lock()
 	defer testMutex.Unlock()
 
-	_,err := services.GetInventoryReport(5)
+	_,err := services.GetInventoryReport(5,filePath)
 	assert.NoError(t, err, "Failed to get report")
 }
 
@@ -23,7 +36,7 @@ func TestGetInventorReportNegitiveLimit(t *testing.T) {
 	testMutex.Lock()
 	defer testMutex.Unlock()
 
-	report,err := services.GetInventoryReport(-5)
+	report,err := services.GetInventoryReport(-5,filePath)
 	assert.Error(t, err, "Expected failure with invalid limit")
 	assert.Nil(t, report, "Expected Empty Products report")
 }

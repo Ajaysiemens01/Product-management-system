@@ -3,14 +3,14 @@ package main
 import (
 	"log"
 	"net/http"
-	"inventory-service/handlers"
+	"purchase-service/handlers"
 	"context"
 	"os/signal"
 	"syscall"
 	"time"
 	"github.com/gorilla/mux"
-	"inventory-service/middlewares"
-	"inventory-service/config"
+	"purchase-service/middlewares"
+	"purchase-service/config"
 )
 
 
@@ -26,8 +26,8 @@ func main() {
 	 api.Use(middlewares.APIKeyMiddleware)
 
     // Define routes
+	api.HandleFunc("/purchase/{product_id:[0-9a-fA-F-]{36}}", handlers.UpdateStockHandler).Methods("PUT")
 
-	api.HandleFunc("/inventory/{product_id:[0-9a-fA-F-]{36}}", handlers.UpdateProductHandler).Methods("PUT")
     portString := config.PORT
     if portString == "" {
         log.Fatal("Port Not found in the environment")

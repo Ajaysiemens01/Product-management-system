@@ -14,15 +14,16 @@ import (
 
 var testMutex sync.Mutex
 
-//Function to get file path
+// Function to get file path
 func GetExcelFilePath() string {
-    path := os.Getenv("EXCEL_FILE_PATH")
-    if path == "" {
-        path = "../../data/products.xlsx" // Default path for local testing
-    }
-    fmt.Println("Using Excel file path:", path)
-    return path
+	path := os.Getenv("EXCEL_FILE_PATH")
+	if path == "" {
+		path = "../../data/products.xlsx" // Default path for local testing
+	}
+	fmt.Println("Using Excel file path:", path)
+	return path
 }
+
 var filePath = GetExcelFilePath()
 
 func deleteTestProduct() {
@@ -47,55 +48,58 @@ func deleteTestProduct() {
 	}
 }
 
-
-// Test SaveProduct with valid product credentials
-func TestSaveProduct(t *testing.T) {
+// Test saving multiple products
+func TestSaveMultipleProducts(t *testing.T) {
 	testMutex.Lock()
 	defer testMutex.Unlock()
 
-	product := models.Product{
-		Name:        "Test Product",
-		Description: "A test description",
-		Price:       99.99,
-		Quantity:    10,
+	testProducts := []*models.Product{
+		{Name: "Test Product 1", Description: "Test Desc 1", Price: 10.0, Quantity: 5},
+		{Name: "Test Product 2", Description: "Test Desc 2", Price: 20.0, Quantity: 10},
 	}
 
-	err := services.SaveProduct(product)
-	assert.NoError(t, err, "Failed to save product")
-	deleteTestProduct()
+	   err := services.SaveProduct(testProducts,filePath)
+		assert.NoError(t, err, "Failed to save product")
+    r:= len(testProducts)
+
+    for r>0{
+		deleteTestProduct()
+		r--
+	}
 }
-// Test GetProduct
+
+// Test fetching products after adding multiple products
 func TestGetProducts(t *testing.T) {
 	testMutex.Lock()
 	defer testMutex.Unlock()
 
-
-	products, err := services.GetProducts()
+	products, err := services.GetProducts(filePath)
 	assert.NoError(t, err, "Failed to fetch products")
 	assert.NotEmpty(t, products, "Products list is empty")
 }
 
-
-// Test SaveProduct if product is empty
-func TestSaveEmptyProduct(t *testing.T) {
+// Test saving multiple empty products
+func TestSaveEmptyProducts(t *testing.T) {
 	testMutex.Lock()
 	defer testMutex.Unlock()
 
-	product := models.Product{}
-	err := services.SaveProduct(product)
-	assert.Error(t, err, "Expected failure when saving invalid product")
+	testProducts := []*models.Product{
+		{},
+		{},
+	}
+	
+		err := services.SaveProduct(testProducts,filePath)
+		assert.Error(t, err, "Expected failure when saving invalid product")
+
 }
 
-// Test SaveProduct if product already exist
-func TestSaveExistedProduct(t *testing.T) {
+// Test saving duplicate products
+func TestSaveDuplicateProducts(t *testing.T) {
 	testMutex.Lock()
 	defer testMutex.Unlock()
-
-	product := models.Product{
-		Name: "Widget A",
-	Description: "A test description",
-	Price:       99.99,
-	Quantity:    10,}
-	err := services.SaveProduct(product)
-	assert.Error(t, err, "Expected failure when saving invalid product")
+    var testProducts []*models.Product
+	testProduct := &models.Product{Name: "Widget A", Description: "Test Desc", Price: 50.0, Quantity: 20}
+    testProducts = append(testProducts, testProduct)
+	err := services.SaveProduct(testProducts,filePath)
+	assert.Error(t, err, "Expected failure when saving duplicate product")
 }
