@@ -21,6 +21,7 @@ services:
     build: ./report-service
     environment:
       - EXCEL_FILE_PATH=/app/data/products.xlsx
+      - REPORT_FILE_PATH=/app/data/products_reprot.xlsx
     volumes:
       - ./data:/app/data
     ports:
