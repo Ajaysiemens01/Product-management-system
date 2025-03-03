@@ -98,7 +98,7 @@ func TestSaveDuplicateProducts(t *testing.T) {
 	testMutex.Lock()
 	defer testMutex.Unlock()
     var testProducts []*models.Product
-	testProduct := &models.Product{Name: "Widget C", Description: "Test Desc", Price: 50.0, Quantity: 20}
+	testProduct := &models.Product{Name: "Widget D", Description: "Test Desc", Price: 50.0, Quantity: 20}
     testProducts = append(testProducts, testProduct)
 	err := services.SaveProduct(testProducts,filePath)
 	assert.Error(t, err, "Expected failure when saving duplicate product")
