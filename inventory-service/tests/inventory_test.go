@@ -28,7 +28,7 @@ func TestUpdateStockValid(t *testing.T) {
 	testMutex.Lock()
 	defer testMutex.Unlock()
     update := &models.InventoryUpdate{
-			ProductID:"0ea6502c-d8c3-4381-b5d9-96fa2c76edf4",
+			ProductID:"7a95839e-7075-40c8-9c46-a5990084fb46",
 			Price : 50,
 			StockAdded:1,
 		}
@@ -44,7 +44,7 @@ func TestUpdateStockInvalid(t *testing.T) {
 	testMutex.Lock()
 	defer testMutex.Unlock()
 	update := &models.InventoryUpdate{
-		ProductID:"e4815cc3-2fd5-4a46-a4b6-8d3c5bf03dd8",
+		ProductID:"7a95839e-7075-40c8-9c46-a5990084fb46",
 		Price : 50,
 		StockAdded:-10,
 	}
