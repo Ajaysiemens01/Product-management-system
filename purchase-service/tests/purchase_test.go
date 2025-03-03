@@ -26,7 +26,7 @@ filePath = GetExcelFilePath()
 func TestUpdateStockValid(t *testing.T) {
 	testMutex.Lock()
 	defer testMutex.Unlock()
-	id := "0ea6502c-d8c3-4381-b5d9-96fa2c76edf4"
+	id := "7a95839e-7075-40c8-9c46-a5990084fb46"
 	err := services.UpdateStock(id,1,filePath)
 	assert.NoError(t, err, "Expected no error for valid input")
 }
@@ -35,7 +35,7 @@ func TestUpdateStockValid(t *testing.T) {
 func TestUpdateStockInvalid(t *testing.T) {
 	testMutex.Lock()
 	defer testMutex.Unlock()
-	id := "0ea6502c-d8c3-4381-b5d9-96fa2c76edf4"
+	id := "7a95839e-7075-40c8-9c46-a5990084fb46"
 	err := services.UpdateStock(id,-1,filePath)
 	assert.Error(t, err, "Expected Validation error for change")
 }
