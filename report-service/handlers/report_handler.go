@@ -22,7 +22,7 @@ func GetExcelFilePath() string {
 
 //Get the product report file path
 func GetReportFilePath() string {
-    path := os.Getenv("EXCEL_FILE_PATH")
+    path := os.Getenv("REPORT_FILE_PATH")
     if path == "" {
         path = "../data/products_report.xlsx" // Default path for local testing
     }

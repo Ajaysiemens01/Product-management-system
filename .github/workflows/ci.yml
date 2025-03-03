@@ -30,3 +30,6 @@ jobs:
 
       - name: Run Tests for Report Service
         run: cd report-service && go test ./tests -v
+
+      - name: Run Tests for Purchase Service
+        run: cd purchase-service && go test ./tests -v
