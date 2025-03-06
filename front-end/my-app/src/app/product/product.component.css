@@ -1,0 +1,59 @@
+.listing {
+    background: var(--accent-color);
+    border-radius: 30px;
+    padding-bottom: 30px;
+  }
+  .listing-heading {
+    color: var(--primary-color);
+    padding: 10px 20px 0px 20px;
+  }
+  .listing-content {
+    display: flex;
+    justify-content: space-around;
+
+  }
+  .listing-data {
+    color: var(--primary-color);
+    padding: 10px 20px 20px 20px;
+  }
+  .listing-data::before {
+    content: url("/assets/location-pin.svg") / "";
+  }
+  .content {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    max-width: 700px;
+
+  }
+
+  .content h1 {
+    margin-top: 1.75rem;
+  }
+
+  .content p {
+    margin-top: 1.5rem;
+  }  
+  button {
+    padding: 10px;
+    border: solid 1px var(--primary-color);
+    background: var(--primary-color);
+    color: white;
+    border-radius: 8px;
+  }
+  section.listing a {
+    padding-left: 20px;
+    text-decoration: none;
+    color: var(--primary-color);
+  }
+  section.listing a::after {
+    content: "\203A";
+    margin-left: 5px;
+  }
+  
+  
+  /*
+  Copyright Google LLC. All Rights Reserved.
+  Use of this source code is governed by an MIT-style license that
+  can be found in the LICENSE file at https://angular.io/license
+  */

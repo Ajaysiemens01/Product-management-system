@@ -17,12 +17,12 @@ func main() {
     r := mux.NewRouter()
 
 	config.LoadConfig() 
-
     // Apply authentication middleware
 	 api := r.PathPrefix("/api").Subrouter()
-	 api.Use(middlewares.APIKeyMiddleware)
+	 api.Use(middlewares.CORSMiddleware)
+	api.Use(middlewares.APIKeyMiddleware)
 
-    // Define routes
+	// Define routes
 	api.HandleFunc("/products", handlers.GetProductsHandler).Methods("GET")
 	api.HandleFunc("/products", handlers.AddProductHandler).Methods("POST")
 
