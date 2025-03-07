@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductComponent } from '../product/product.component';
 import { Product } from '../product';
@@ -18,21 +18,22 @@ import { ExcelService } from '../excel.service';
   `,
   styleUrl: './home.component.css'
 })
-export class HomeComponent implements OnInit{
+export class HomeComponent { 
 
   products: Product[] = [];
     
   excelService: ExcelService = inject(ExcelService);
+  constructor() {
+    this.loadProducts();
+  }
 
-  constructor() {}
-
-  ngOnInit() {
-    console.log("AppComponent Initialized");
-    this.excelService.fetchProducts(); // Fetching the products only once
-  
+  async loadProducts() {
+    this.excelService.fetchProducts(); // Fetches data immediately on service load
     this.excelService.products$.subscribe((data: Product[]) => {
-      console.log(" Received Products:", data);
-      this.products = data;  // Now properly updating
+      this.products=data
     });
   }
+  
+
 }
+

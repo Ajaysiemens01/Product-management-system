@@ -1,13 +1,14 @@
-package handlers
+package handler
 
 import (
-	"net/http"
-	"report-service/services"
-	"github.com/google/jsonapi"
 	"fmt"
-	"sync"
-	"strconv"
+	"net/http"
 	"os"
+	"report-service/services"
+	"strconv"
+	"sync"
+
+	"github.com/google/jsonapi"
 )
 
 //Get the product file path

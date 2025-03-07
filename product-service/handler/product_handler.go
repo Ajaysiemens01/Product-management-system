@@ -1,27 +1,29 @@
-package handlers
+package handler
 
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"product-service/models"
 	"product-service/services"
+	"reflect"
 	"sync"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/google/jsonapi"
-	"reflect"
-	"os"
 )
 
 var wg sync.WaitGroup
 
 func GetExcelFilePath() string {
-    path := os.Getenv("EXCEL_FILE_PATH")
-    if path == "" {
-        path = "../data/products.xlsx" // Default path for local testing
-    }
-    fmt.Println("Using Excel file path:", path)
-    return path
+	path := os.Getenv("EXCEL_FILE_PATH")
+	if path == "" {
+		path = "../data/products.xlsx" // Default path for local testing
+	}
+	fmt.Println("Using Excel file path:", path)
+	return path
 }
+
 var filePath = GetExcelFilePath()
 
 func ParseRequestBody(r *http.Request) ([]*models.Product, error) {
@@ -41,6 +43,7 @@ func ParseRequestBody(r *http.Request) ([]*models.Product, error) {
 	}
 	return products, nil
 }
+
 // RespondWithJsonApi sends the response
 func RespondWithJsonApi(w http.ResponseWriter, response interface{}) error {
 	w.Header().Set("Content-Type", "application/vnd.api+json")
@@ -87,7 +90,7 @@ func AddProductHandler(w http.ResponseWriter, r *http.Request) {
 	//var wg sync.WaitGroup
 	var products []*models.Product
 	var err error
-    
+
 	if products, err = ParseRequestBody(r); err != nil {
 		handleError(w, "Invalid request body", http.StatusBadRequest)
 		return
@@ -95,13 +98,13 @@ func AddProductHandler(w http.ResponseWriter, r *http.Request) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-    for _,p := range products {
-		if err := validator.New().Struct(p); err != nil {
-			handleError(w, err.Error(), http.StatusBadRequest)
-			return
+		for _, p := range products {
+			if err := validator.New().Struct(p); err != nil {
+				handleError(w, err.Error(), http.StatusBadRequest)
+				return
+			}
 		}
-	}
-		if err := services.SaveProduct(products,filePath); err != nil {
+		if err := services.SaveProduct(products, filePath); err != nil {
 			handleError(w, err.Error(), http.StatusInternalServerError)
 			return
 		}

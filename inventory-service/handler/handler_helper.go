@@ -1,13 +1,12 @@
-package handlers
+package handler
 
 import (
 	"fmt"
+	"github.com/go-playground/validator/v10"
+	"github.com/google/jsonapi"
 	"inventory-service/models"
 	"net/http"
-	"github.com/google/jsonapi"
-	"github.com/go-playground/validator/v10"
 )
-
 
 // ParseRequestBody parses the request body
 func ParseRequestBody(r *http.Request) (*models.InventoryUpdate, error) {
@@ -30,11 +29,11 @@ func handleError(w http.ResponseWriter, message string, statusCode int) {
 	w.WriteHeader(statusCode)
 	var errors []*jsonapi.ErrorObject
 
-		errors = append(errors, &jsonapi.ErrorObject{
-			Status: fmt.Sprintf("%d", statusCode), 
-			Title:  http.StatusText(statusCode),
-			Detail: message,
-		})
+	errors = append(errors, &jsonapi.ErrorObject{
+		Status: fmt.Sprintf("%d", statusCode),
+		Title:  http.StatusText(statusCode),
+		Detail: message,
+	})
 	if err := jsonapi.MarshalErrors(w, errors); err != nil {
 		http.Error(w, "Error encoding error response", http.StatusInternalServerError)
 	}
@@ -46,9 +45,9 @@ func handleErrors(w http.ResponseWriter, messages []string, statusCode int) {
 	w.WriteHeader(statusCode)
 
 	var errors []*jsonapi.ErrorObject
-	for _,message := range messages{
+	for _, message := range messages {
 		errors = append(errors, &jsonapi.ErrorObject{
-			Status: fmt.Sprintf("%d", statusCode), 
+			Status: fmt.Sprintf("%d", statusCode),
 			Title:  http.StatusText(statusCode),
 			Detail: message,
 		})
@@ -59,18 +58,18 @@ func handleErrors(w http.ResponseWriter, messages []string, statusCode int) {
 }
 
 // BundleValidationErrors maps validation errors to custom messages
-func BundleValidationErrors(err error,update *models.InventoryUpdate) []string {
+func BundleValidationErrors(err error, update *models.InventoryUpdate) []string {
 	var errorMessages []string
 
 	// Loop through validation errors
 	for _, e := range err.(validator.ValidationErrors) {
 		switch e.Field() {
 		case "Price":
-			if e.Tag() == "gt" && update.Price < 0{
+			if e.Tag() == "gt" && update.Price < 0 {
 				errorMessages = append(errorMessages, "Price must be greater than 0")
 			}
 		case "Quantity":
-			if e.Tag() == "gt" && update.Quantity < 0{
+			if e.Tag() == "gt" && update.Quantity < 0 {
 				errorMessages = append(errorMessages, "Quantity must be greater than 0")
 			}
 		case "StockAdded":
@@ -81,5 +80,5 @@ func BundleValidationErrors(err error,update *models.InventoryUpdate) []string {
 			errorMessages = append(errorMessages, fmt.Sprintf("%s is invalid", e.Field()))
 		}
 	}
-  return errorMessages
+	return errorMessages
 }

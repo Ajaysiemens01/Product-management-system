@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject } from 'rxjs';
 import { Product } from './product';
 import { map, tap } from 'rxjs/operators';
 
@@ -9,7 +9,6 @@ import { map, tap } from 'rxjs/operators';
 })
 export class ExcelService {
   private apiUrl = 'http://localhost:8081/api/products';
-
   private httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/vnd.api+json',
@@ -17,15 +16,14 @@ export class ExcelService {
     })
   };
 
-  private productsSubject = new BehaviorSubject<Product[]>([]);
+  private productsSubject = new ReplaySubject<Product[]>(1);
   products$ = this.productsSubject.asObservable();
 
   constructor(private http: HttpClient) {
     console.log(" ExcelService Initialized");
   }
-
+  //Fetch Products form url
   fetchProducts(): void {
-
     this.http.get<{ data: any[] }>(this.apiUrl, this.httpOptions)
       .pipe(
         map(response => response.data?.map(item => ({
@@ -35,11 +33,13 @@ export class ExcelService {
           Price: item.attributes.price,
           Quantity: item.attributes.quantity
         })) || []),
-        tap(products => console.log(" Processed Products:", products))
+        tap(products => console.log(products))
       )
       .subscribe({
-        next: (products) => this.productsSubject.next(products),
-        error: (error) => console.error(" Error fetching products:", error)
+        next: (products) => {
+          this.productsSubject.next(products);
+        },
+        error: (error) => console.error("Error fetching products:", error)
       });
   }
 }

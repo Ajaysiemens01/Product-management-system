@@ -1,61 +1,64 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
-	"product-service/handlers"
-	"context"
 	"os/signal"
+	"product-service/handler"
 	"syscall"
 	"time"
+
 	"github.com/gorilla/mux"
-	"product-service/middlewares"
+	"github.com/rs/cors"
 	"product-service/config"
+	"product-service/middlewares"
 )
 
 func main() {
-    r := mux.NewRouter()
+	r := mux.NewRouter()
 
-	config.LoadConfig() 
-    // Apply authentication middleware
-	 api := r.PathPrefix("/api").Subrouter()
-	 api.Use(middlewares.CORSMiddleware)
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:4200"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders:   []string{"Content-Type", "X-API-KEY"},
+		AllowCredentials: true,
+	})
+
+	config.LoadConfig()
+
+	api := r.PathPrefix("/api").Subrouter()
 	api.Use(middlewares.APIKeyMiddleware)
 
 	// Define routes
-	api.HandleFunc("/products", handlers.GetProductsHandler).Methods("GET")
-	api.HandleFunc("/products", handlers.AddProductHandler).Methods("POST")
+	api.HandleFunc("/products", handler.GetProductsHandler).Methods("GET")
+	api.HandleFunc("/products", handler.AddProductHandler).Methods("POST")
 
-    portString := config.PORT
-    if portString == "" {
-        log.Fatal("Port Not found in the environment")
-    }
-    log.Println("Server started on : " + portString)
+	portString := config.PORT
+	if portString == "" {
+		log.Fatal("Port Not found in the environment")
+	}
+	log.Println("Server started on : " + portString)
 
-    server := &http.Server{
-  
-        Addr:    ":" + portString,
-        Handler: r,
-    }
-   // When this context is canceled, we will gracefully stop the server.
+	server := &http.Server{
+		Addr:    ":" + portString,
+		Handler: c.Handler(r),
+	}
+
+	// Graceful shutdown
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	defer cancel()
 
-	// When the server is stopped *not by that context*, but by any
-	// other problems, it will return its error via this.
 	serr := make(chan error, 1)
 
-	// Start the server and collect its error return.
 	go func() { serr <- server.ListenAndServe() }()
 
-	// Wait for either the server to fail, or the context to end.
 	var e error
 	select {
 	case e = <-serr:
 	case <-ctx.Done():
 	}
-	
-	
+
 	sdctx, sdcancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer sdcancel()
 	if shutdownErr := server.Shutdown(sdctx); shutdownErr != nil {
