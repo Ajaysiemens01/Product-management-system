@@ -1,40 +1,39 @@
 package services
 
 import (
-	"strconv"
-	"sync"
-	"github.com/xuri/excelize/v2"
-	"report-service/models"
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/xuri/excelize/v2"
+	"report-service/models"
+	"strconv"
+	"sync"
 )
-
 
 var mutex sync.Mutex
 
-// SaveProduct writes a new product to the report file 
+// SaveProduct writes a new product to the report file
 func SaveProduct(products []*models.ProductReport, ReportfilePath string) error {
 	// Create a new file if it doesn't existm
 	file := excelize.NewFile()
-		file.SetSheetRow("Sheet1", "A1", &[]string{"ID", "Name", "Description", "Price", "Quantity"})
+	file.SetSheetRow("Sheet1", "A1", &[]string{"ID", "Name", "Description", "Price", "Quantity"})
 
 	sheet := "Sheet1"
 	rows, _ := file.GetRows(sheet)
 	rowCount := len(rows)
-	for _,p := range products{
-        
-	    // Add a new product to report
-	    p.ProductID = uuid.New().String()
-	    rowCount++
-	    file.SetCellValue(sheet, fmt.Sprintf("A%d", rowCount), p.ProductID)          
-	    file.SetCellValue(sheet, fmt.Sprintf("B%d", rowCount), p.Name)       
-	    file.SetCellValue(sheet, fmt.Sprintf("C%d", rowCount), p.Description) 
-	    file.SetCellValue(sheet, fmt.Sprintf("D%d", rowCount), p.Price)       
-	    file.SetCellValue(sheet, fmt.Sprintf("E%d", rowCount), p.Quantity)    
-    
+	for _, p := range products {
+
+		// Add a new product to report
+		p.ID = uuid.New().String()
+		rowCount++
+		file.SetCellValue(sheet, fmt.Sprintf("A%d", rowCount), p.ID)
+		file.SetCellValue(sheet, fmt.Sprintf("B%d", rowCount), p.Name)
+		file.SetCellValue(sheet, fmt.Sprintf("C%d", rowCount), p.Description)
+		file.SetCellValue(sheet, fmt.Sprintf("D%d", rowCount), p.Price)
+		file.SetCellValue(sheet, fmt.Sprintf("E%d", rowCount), p.Quantity)
+
 	}
-  return file.SaveAs(ReportfilePath)
+	return file.SaveAs(ReportfilePath)
 }
 
 // GetInventoryReport fetches all product data
@@ -47,8 +46,8 @@ func GetInventoryReport(restockThreshold int, filePath string, reportFilePath st
 		return nil, err
 	}
 	if restockThreshold < 0 {
-		return nil ,errors.New("invalid restock threshold")
-	} 
+		return nil, errors.New("invalid restock threshold")
+	}
 	rows, _ := file.GetRows("Sheet1")
 	var report []*models.ProductReport
 
@@ -59,17 +58,17 @@ func GetInventoryReport(restockThreshold int, filePath string, reportFilePath st
 		price, _ := strconv.ParseFloat(row[3], 64)
 		quantity, _ := strconv.Atoi(row[4])
 		if quantity < restockThreshold {
-		report = append(report, &models.ProductReport{
-			ProductID:   row[0],
-			Name:        row[1],
-			Description: row[2],
-			Price:       price,
-			Quantity:    quantity,
-		})
+			report = append(report, &models.ProductReport{
+				ID:          row[0],
+				Name:        row[1],
+				Description: row[2],
+				Price:       price,
+				Quantity:    quantity,
+			})
 		}
 	}
 	if err := SaveProduct(report, reportFilePath); err != nil {
-		return report,err
+		return report, err
 	}
 	return report, nil
 }
